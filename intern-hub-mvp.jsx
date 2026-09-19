@@ -212,7 +212,7 @@ const CityCard = ({ city, isSelected, onClick, index, sidebar }) => (
   </div>
 );
 
-const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect, isSaved, onToggleSave, onNeighborhoodClick }) => {
+const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect, isSaved, onToggleSave, onNeighborhoodClick, onContact }) => {
   return (
   <div
     style={{
@@ -340,6 +340,16 @@ const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect, isSav
         )}
       </div>
       <div style={{ display: "flex", gap: 8 }}>
+        <button
+          onClick={(e) => { e.stopPropagation(); onContact && onContact(listing); }}
+          style={{
+            padding: "8px 20px", borderRadius: 100, border: `1px solid ${cityColor}40`,
+            background: "transparent", color: cityColor, fontSize: 13, fontWeight: 600,
+            cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+          }}
+        >
+          Contact
+        </button>
         {listing.link && (
           <a
             href={listing.link}
@@ -525,6 +535,9 @@ export default function InternHub() {
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [addGroupForm, setAddGroupForm] = useState({ name: "", category: "Social", emoji: "👥", link: "", creator: "", creatorCompany: "" });
   const [savedListingIds, setSavedListingIds] = useState([]);
+  const [contactFor, setContactFor] = useState(null);
+  const [contactMsg, setContactMsg] = useState("");
+  const [contactSent, setContactSent] = useState(false);
   const [activeNeighborhood, setActiveNeighborhood] = useState(null);
 
   // Load listings posted via /list (persisted in the browser) so they show up.
@@ -1044,7 +1057,7 @@ export default function InternHub() {
                     ((NEIGHBORHOODS[neighborhoodKey(selectedCity.id)] || {}).neighborhoods || []).map(n => n.name)
                   );
                   return displayListings.length > 0 ? displayListings.map((l, i) => (
-                    <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} isHighlighted={l.id === highlightedListingId} onSelect={setHighlightedListingId} isSaved={savedListingIds.includes(l.id)} onToggleSave={toggleSaved} onNeighborhoodClick={l.neighborhood && guideNames.has(l.neighborhood) ? handleNeighborhoodClick : undefined} />
+                    <ListingCard key={l.id} listing={l} cityColor={selectedCity.color} index={i} isHighlighted={l.id === highlightedListingId} onSelect={setHighlightedListingId} isSaved={savedListingIds.includes(l.id)} onToggleSave={toggleSaved} onNeighborhoodClick={l.neighborhood && guideNames.has(l.neighborhood) ? handleNeighborhoodClick : undefined} onContact={setContactFor} />
                   )) : (
                     <div style={{
                       textAlign: "center", padding: 60, color: "var(--text-muted)",
@@ -1274,6 +1287,45 @@ export default function InternHub() {
           </div>
         </footer>
       </div>
+
+      {/* Contact Modal */}
+      {contactFor && (
+        <div onClick={() => { setContactFor(null); setContactSent(false); setContactMsg(""); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "#141420", border: "1px solid var(--border)", borderRadius: 22, padding: 28, maxWidth: 420, width: "100%", color: "var(--text)" }}>
+            {contactSent ? (
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 36 }}>✅</div>
+                <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, marginTop: 8 }}>Message sent!</div>
+                <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 8, lineHeight: 1.5 }}>
+                  {contactFor.poster} will get your note. (Full in-app messaging arrives with accounts.)
+                </div>
+                <button onClick={() => { setContactFor(null); setContactSent(false); setContactMsg(""); }} style={{ marginTop: 18, padding: "10px 24px", borderRadius: 100, border: "none", background: selectedCity.color, color: "#fff", fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Done</button>
+              </div>
+            ) : (
+              <>
+                <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, marginBottom: 4 }}>Contact {contactFor.poster}</div>
+                <div style={{ fontSize: 13, color: "var(--text-muted)", marginBottom: 16 }}>About &ldquo;{contactFor.title}&rdquo; · {contactFor.posterCompany}</div>
+                <textarea value={contactMsg} onChange={e => setContactMsg(e.target.value)} placeholder="Hi! I'm an intern interested in your place — is it still available?" style={{ width: "100%", minHeight: 100, padding: 14, borderRadius: 12, background: "var(--input-bg)", border: "1px solid var(--input-border)", color: "var(--text)", fontFamily: "'DM Sans', sans-serif", fontSize: 14, resize: "vertical", outline: "none" }} />
+                <button
+                  onClick={() => {
+                    const user = JSON.parse(localStorage.getItem("internnest_user") || "null");
+                    if (!user) { window.location.href = "/signup"; return; }
+                    const inq = JSON.parse(localStorage.getItem("internnest_inquiries") || "[]");
+                    inq.push({ listingId: contactFor.id, to: contactFor.poster, from: user.name, message: contactMsg, at: Date.now() });
+                    localStorage.setItem("internnest_inquiries", JSON.stringify(inq));
+                    setContactSent(true);
+                  }}
+                  disabled={!contactMsg.trim()}
+                  style={{ marginTop: 14, width: "100%", padding: 13, borderRadius: 100, border: "none", background: selectedCity.color, color: "#fff", fontSize: 15, fontWeight: 700, cursor: contactMsg.trim() ? "pointer" : "not-allowed", opacity: contactMsg.trim() ? 1 : 0.5, fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  Send message
+                </button>
+                <div style={{ fontSize: 12, color: "var(--text-subtle)", marginTop: 10, textAlign: "center" }}>You must be a verified intern to contact posters.</div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Coming Soon Modal */}
       {showComingSoon && (
