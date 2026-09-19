@@ -255,6 +255,9 @@ const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect, isSav
           <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif", marginTop: 3 }}>
             {listing.type} · {listing.dates}
           </div>
+          <span style={{ display: "inline-block", marginTop: 6, padding: "2px 10px", borderRadius: 100, background: `${cityColor}18`, color: cityColor, fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
+            🗓️ Month-to-month
+          </span>
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 8, flexShrink: 0 }}>
@@ -766,7 +769,7 @@ export default function InternHub() {
             fontSize: 17, color: "var(--text-muted)", marginTop: 20,
             maxWidth: 500, margin: "20px auto 0", lineHeight: 1.6,
           }}>
-            Find subleases, navigate transit, and connect with fellow interns — all in one place.
+            Short-term, month-to-month subleases only — plus transit tips and a community of fellow interns, all in one place.
           </p>
         </section>
 
