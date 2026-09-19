@@ -237,15 +237,15 @@ const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect, isSav
       e.currentTarget.style.background = "var(--surface)";
     }}
   >
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-      <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+      <div style={{ display: "flex", gap: 14, alignItems: "center", flex: 1, minWidth: 0 }}>
         <div style={{
           width: 52, height: 52, borderRadius: 14, background: `${cityColor}20`,
-          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26,
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, flexShrink: 0,
         }}>
           {listing.img}
         </div>
-        <div>
+        <div style={{ minWidth: 0 }}>
           <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 19, color: "var(--text)" }}>
             {listing.title}
           </div>
@@ -254,7 +254,7 @@ const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect, isSav
           </div>
         </div>
       </div>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 8, flexShrink: 0 }}>
         <button
           onClick={(e) => { e.stopPropagation(); onToggleSave && onToggleSave(listing.id); }}
           style={{

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const ACCENT = "#6C63FF";
 const CITIES = [
@@ -30,7 +31,9 @@ const input: React.CSSProperties = {
 };
 
 export default function SignupPage() {
-  const [done, setDone] = useState(false);
+  const [status, setStatus] = useState<"form" | "sent" | "stub">("form");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
   const [f, setF] = useState({
     name: "", email: "", school: "", city: CITIES[0],
     company: "", startDate: "", endDate: "", budget: "",
@@ -39,10 +42,34 @@ export default function SignupPage() {
     setF({ ...f, [k]: e.target.value });
   const eduOk = /\.edu\s*$/i.test(f.email.trim());
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("internnest_user", JSON.stringify(f)); // TODO: Supabase Auth (.edu)
-    setDone(true);
+    setError("");
+    if (!eduOk) {
+      setError("Please use your school's .edu email — that's how we verify interns.");
+      return;
+    }
+    setSending(true);
+
+    if (isSupabaseConfigured && supabase) {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: f.email.trim(),
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: {
+            name: f.name, school: f.school, city: f.city, company: f.company,
+            start_date: f.startDate, end_date: f.endDate, budget: f.budget,
+          },
+        },
+      });
+      setSending(false);
+      if (error) { setError(error.message); return; }
+      setStatus("sent");
+    } else {
+      localStorage.setItem("internnest_user", JSON.stringify(f));
+      setSending(false);
+      setStatus("stub");
+    }
   };
 
   return (
@@ -55,13 +82,21 @@ export default function SignupPage() {
       <div style={card}>
         <a href="/" style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>← Back to InternNest</a>
 
-        {done ? (
+        {status === "sent" ? (
+          <div style={{ textAlign: "center", paddingTop: 24 }}>
+            <div style={{ fontSize: 40 }}>📬</div>
+            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>Check your email</h1>
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
+              We sent a secure login link to <b>{f.email}</b>. Click it to verify your
+              .edu and finish creating your account.
+            </p>
+          </div>
+        ) : status === "stub" ? (
           <div style={{ textAlign: "center", paddingTop: 24 }}>
             <div style={{ fontSize: 40 }}>🪺</div>
             <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>You&apos;re in the nest!</h1>
             <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
-              Next up (soon): we&apos;ll verify your <b>.edu</b> email and drop you into
-              your city&apos;s listings + intern community.
+              Saved locally for now — connect Supabase to send a real .edu verification link.
             </p>
             <a href="/" style={{ display: "inline-block", marginTop: 22, padding: "13px 30px", borderRadius: 100, background: ACCENT, color: "#fff", fontWeight: 600, textDecoration: "none" }}>Browse housing →</a>
           </div>
@@ -69,7 +104,7 @@ export default function SignupPage() {
           <>
             <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 34, fontWeight: 400, marginTop: 18 }}>Create your account</h1>
             <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 6, marginBottom: 24 }}>
-              The quick start — we&apos;ll personalize housing &amp; community from this.
+              We&apos;ll verify your .edu and personalize housing &amp; community.
             </p>
 
             <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -78,7 +113,7 @@ export default function SignupPage() {
 
               <div><label style={label}>School email (.edu)</label>
                 <input required type="email" style={input} placeholder="you@university.edu" value={f.email} onChange={set("email")} />
-                {f.email && !eduOk && <p style={{ color: "#f0b34a", fontSize: 12, marginTop: 6 }}>Use your school&apos;s .edu email — that&apos;s how we verify interns.</p>}</div>
+                {f.email && !eduOk && <p style={{ color: "#f0b34a", fontSize: 12, marginTop: 6 }}>Use your school&apos;s .edu email.</p>}</div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 <div><label style={label}>School</label>
@@ -102,8 +137,10 @@ export default function SignupPage() {
               <div><label style={label}>Monthly budget ($)</label>
                 <input type="number" style={input} placeholder="2000" value={f.budget} onChange={set("budget")} /></div>
 
-              <button type="submit" style={{ marginTop: 6, padding: "14px", borderRadius: 100, border: "none", background: ACCENT, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", boxShadow: `0 4px 24px ${ACCENT}40` }}>
-                Create account
+              {error && <p style={{ color: "#ff6b6b", fontSize: 13 }}>{error}</p>}
+
+              <button type="submit" disabled={sending} style={{ marginTop: 6, padding: "14px", borderRadius: 100, border: "none", background: ACCENT, color: "#fff", fontSize: 15, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer", opacity: sending ? 0.6 : 1, boxShadow: `0 4px 24px ${ACCENT}40` }}>
+                {sending ? "Sending…" : "Create account"}
               </button>
               <p style={{ textAlign: "center", fontSize: 13, color: "rgba(255,255,255,0.45)" }}>
                 Already have an account? <a href="/login" style={{ color: ACCENT, textDecoration: "none" }}>Log in</a>

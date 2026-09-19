@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 const ACCENT = "#6C63FF";
 
@@ -27,12 +28,26 @@ const input: React.CSSProperties = {
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Supabase Auth. For now, stub → go home.
-    window.location.href = "/";
+    setError("");
+    setSending(true);
+    if (isSupabaseConfigured && supabase) {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim(),
+        options: { emailRedirectTo: window.location.origin },
+      });
+      setSending(false);
+      if (error) { setError(error.message); return; }
+      setSent(true);
+    } else {
+      setSending(false);
+      window.location.href = "/"; // stub until Supabase is connected
+    }
   };
 
   return (
@@ -43,24 +58,37 @@ export default function LoginPage() {
 
       <div style={card}>
         <a href="/" style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>← Back to InternNest</a>
-        <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 34, fontWeight: 400, marginTop: 18 }}>Welcome back</h1>
-        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 6, marginBottom: 24 }}>
-          Log in to your InternNest account.
-        </p>
 
-        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div><label style={label}>Email</label>
-            <input required type="email" style={input} placeholder="you@university.edu" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-          <div><label style={label}>Password</label>
-            <input required type="password" style={input} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+        {sent ? (
+          <div style={{ textAlign: "center", paddingTop: 24 }}>
+            <div style={{ fontSize: 40 }}>📬</div>
+            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>Check your email</h1>
+            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
+              We sent a magic login link to <b>{email}</b>. Click it to sign in — no password needed.
+            </p>
+          </div>
+        ) : (
+          <>
+            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 34, fontWeight: 400, marginTop: 18 }}>Welcome back</h1>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 6, marginBottom: 24 }}>
+              Enter your email and we&apos;ll send a secure login link.
+            </p>
 
-          <button type="submit" style={{ marginTop: 6, padding: "14px", borderRadius: 100, border: "none", background: ACCENT, color: "#fff", fontSize: 15, fontWeight: 700, cursor: "pointer", boxShadow: `0 4px 24px ${ACCENT}40` }}>
-            Log in
-          </button>
-          <p style={{ textAlign: "center", fontSize: 13, color: "rgba(255,255,255,0.45)" }}>
-            New here? <a href="/signup" style={{ color: ACCENT, textDecoration: "none" }}>Create an account</a>
-          </p>
-        </form>
+            <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div><label style={label}>Email</label>
+                <input required type="email" style={input} placeholder="you@university.edu" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+
+              {error && <p style={{ color: "#ff6b6b", fontSize: 13 }}>{error}</p>}
+
+              <button type="submit" disabled={sending} style={{ marginTop: 6, padding: "14px", borderRadius: 100, border: "none", background: ACCENT, color: "#fff", fontSize: 15, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer", opacity: sending ? 0.6 : 1, boxShadow: `0 4px 24px ${ACCENT}40` }}>
+                {sending ? "Sending…" : "Send magic link"}
+              </button>
+              <p style={{ textAlign: "center", fontSize: 13, color: "rgba(255,255,255,0.45)" }}>
+                New here? <a href="/signup" style={{ color: ACCENT, textDecoration: "none" }}>Create an account</a>
+              </p>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
