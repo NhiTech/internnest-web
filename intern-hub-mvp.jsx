@@ -1193,6 +1193,26 @@ export default function InternHub() {
               </span>
             </a>
 
+            <a href="/connect" style={{
+              display: "flex", alignItems: "center", gap: 16, textDecoration: "none",
+              marginBottom: 24, padding: 22, borderRadius: 18,
+              background: `linear-gradient(135deg, ${selectedCity.color}18, ${selectedCity.color}06)`,
+              border: `1px solid ${selectedCity.color}30`,
+            }}>
+              <span style={{ fontSize: 34 }}>🤝</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 20, color: "var(--text)" }}>
+                  Find your people
+                </div>
+                <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 2 }}>
+                  Meet other verified interns at your company &amp; in {selectedCity.name}.
+                </div>
+              </div>
+              <span style={{ padding: "10px 22px", borderRadius: 100, background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>
+                Browse →
+              </span>
+            </a>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[...(interestGroupsData[selectedCity.id] || []), ...localGroups.filter(g => g.cityId === selectedCity.id)].map((g, i) => (
                 <GroupCard key={g.name + i} g={g} index={i} cityColor={selectedCity.color} />
