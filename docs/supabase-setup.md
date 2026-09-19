@@ -32,6 +32,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 | amenities | text[] |
 | right_to_sublease | bool |
 | landlord_permission | bool |
+| poster_type | text (`intern` / `landlord`) |
+| landlord_name | text (landlord listings only) |
+| landlord_contact | text (landlord listings only) |
 | lease_doc | text (storage path) |
 | photos | text[] (storage paths) |
 | status | text (pending / published / removed) default 'pending' |

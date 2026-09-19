@@ -34,111 +34,103 @@ const input: React.CSSProperties = {
 };
 
 export default function ListPage() {
-  const [authState, setAuthState] = useState<"checking" | "in" | "out">("checking");
+  const [signedIn, setSignedIn] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [posterType, setPosterType] = useState<"intern" | "landlord">("intern");
   const [status, setStatus] = useState<"form" | "done">("form");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
   const [f, setF] = useState({
     title: "", city: CITIES[0].id, neighborhood: "", size: SIZES[0],
-    price: "", startDate: "", endDate: "", leaseType: "sublease",
-    amenities: "",
+    price: "", startDate: "", endDate: "", leaseType: "sublease", amenities: "",
+    landlordName: "", landlordContact: "",
   });
   const [photos, setPhotos] = useState<FileList | null>(null);
   const [lease, setLease] = useState<File | null>(null);
-  const [rightToSublease, setRightToSublease] = useState(false);
-  const [landlordOk, setLandlordOk] = useState(false);
+  const [attest1, setAttest1] = useState(false);
+  const [attest2, setAttest2] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
     setF({ ...f, [k]: e.target.value });
 
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) {
-      setAuthState("in"); // stub mode — allow posting locally
-      return;
-    }
+    if (!isSupabaseConfigured || !supabase) return;
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) { setUserId(data.user.id); setAuthState("in"); }
-      else setAuthState("out");
+      if (data.user) { setUserId(data.user.id); setSignedIn(true); }
     });
+    try { if (localStorage.getItem("internnest_user")) setSignedIn(true); } catch {}
   }, []);
+  useEffect(() => {
+    try { if (localStorage.getItem("internnest_user")) setSignedIn(true); } catch {}
+  }, []);
+
+  const attestOk = posterType === "landlord" ? attest1 : attest1 && attest2;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!rightToSublease || !landlordOk) {
-      setError("Please confirm both attestations before posting.");
+    if (posterType === "intern" && !signedIn) {
+      window.location.href = "/signup";
       return;
     }
-    if (!f.startDate || !f.endDate) {
-      setError("Sublease start and end dates are required.");
+    if (!attestOk) { setError("Please confirm the attestation(s) before posting."); return; }
+    if (!f.startDate || !f.endDate) { setError("Available-from and until dates are required."); return; }
+    if (posterType === "landlord" && (!f.landlordName || !f.landlordContact)) {
+      setError("Landlords: please add your name and a contact email/phone.");
       return;
     }
     setSending(true);
 
-    // Save a display-ready copy locally so it shows immediately in the Housing tab.
+    // display copy saved locally so it shows in the Housing tab immediately
     try {
-      const user = JSON.parse(localStorage.getItem("internnest_user") || "{}");
+      const user = JSON.parse(localStorage.getItem("internnest_user") || "null");
       const local = JSON.parse(localStorage.getItem("internnest_local_listings") || "[]");
       local.push({
         id: Date.now(), cityId: f.city, title: f.title,
         price: parseInt(f.price) || 0, type: f.size,
         dates: `${f.startDate} – ${f.endDate}`,
         amenities: f.amenities.split(",").map((a) => a.trim()).filter(Boolean),
-        poster: user.name || "You", posterCompany: user.company || "",
-        verified: true, img: "🏠", neighborhood: f.neighborhood || undefined,
+        poster: posterType === "landlord" ? f.landlordName : (user?.name || "You"),
+        posterCompany: posterType === "landlord" ? "Landlord" : (user?.company || ""),
+        posterType, verified: posterType === "intern",
+        img: posterType === "landlord" ? "🏠" : "🎓",
+        neighborhood: f.neighborhood || undefined,
       });
       localStorage.setItem("internnest_local_listings", JSON.stringify(local));
     } catch {}
 
     if (isSupabaseConfigured && supabase) {
       try {
-        // upload lease doc + photos to storage
-        const stamp = Date.now();
-        let leaseUrl: string | null = null;
-        if (lease) {
-          const path = `${userId}/${stamp}-${lease.name}`;
-          const { error: e1 } = await supabase.storage.from("leases").upload(path, lease);
-          if (e1) throw e1;
-          leaseUrl = path;
-        }
-        const photoPaths: string[] = [];
-        if (photos) {
-          for (const file of Array.from(photos)) {
-            const path = `${userId}/${stamp}-${file.name}`;
-            const { error: e2 } = await supabase.storage.from("listing-photos").upload(path, file);
-            if (!e2) photoPaths.push(path);
-          }
-        }
         const { error: e3 } = await supabase.from("listings").insert({
-          owner_id: userId,
-          city_id: f.city,
-          title: f.title,
-          neighborhood: f.neighborhood,
-          type: f.size,
-          price: parseInt(f.price) || 0,
-          start_date: f.startDate,
-          end_date: f.endDate,
-          lease_type: f.leaseType,
-          amenities: f.amenities.split(",").map((a) => a.trim()).filter(Boolean),
-          right_to_sublease: rightToSublease,
-          landlord_permission: landlordOk,
-          lease_doc: leaseUrl,
-          photos: photoPaths,
-          status: "pending", // awaits review
+          owner_id: userId, city_id: f.city, title: f.title, neighborhood: f.neighborhood,
+          type: f.size, price: parseInt(f.price) || 0, start_date: f.startDate, end_date: f.endDate,
+          lease_type: f.leaseType, amenities: f.amenities.split(",").map((a) => a.trim()).filter(Boolean),
+          poster_type: posterType,
+          landlord_name: posterType === "landlord" ? f.landlordName : null,
+          landlord_contact: posterType === "landlord" ? f.landlordContact : null,
+          status: posterType === "landlord" ? "pending" : "pending",
         });
-        if (e3) throw e3;
-        setStatus("done");
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Something went wrong uploading your listing.");
-      } finally {
         setSending(false);
+        if (e3) throw e3;
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Upload error.");
+        return;
       }
     } else {
       setSending(false);
-      setStatus("done");
     }
+    setStatus("done");
   };
+
+  const Toggle = ({ v, labelText, emoji }: { v: "intern" | "landlord"; labelText: string; emoji: string }) => (
+    <button type="button" onClick={() => setPosterType(v)} style={{
+      flex: 1, padding: "14px", borderRadius: 14, cursor: "pointer",
+      background: posterType === v ? `${ACCENT}22` : "rgba(255,255,255,0.04)",
+      border: posterType === v ? `1.5px solid ${ACCENT}` : "1px solid rgba(255,255,255,0.1)",
+      color: posterType === v ? "#fff" : "rgba(255,255,255,0.6)",
+      fontSize: 14, fontWeight: 600, fontFamily: "'DM Sans', sans-serif",
+    }}>{emoji} {labelText}</button>
+  );
 
   return (
     <div style={page}>
@@ -150,34 +142,45 @@ export default function ListPage() {
       <div style={card}>
         <a href="/" style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>← Back to InternNest</a>
 
-        {authState === "checking" ? (
-          <p style={{ paddingTop: 24, color: "rgba(255,255,255,0.5)" }}>Loading…</p>
-        ) : authState === "out" ? (
-          <div style={{ textAlign: "center", paddingTop: 24 }}>
-            <div style={{ fontSize: 40 }}>🔒</div>
-            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>Verify to list your place</h1>
-            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
-              Only verified student interns can post listings — keeps housing trustworthy.
-            </p>
-            <a href="/login" style={{ display: "inline-block", marginTop: 22, padding: "13px 30px", borderRadius: 100, background: ACCENT, color: "#fff", fontWeight: 600, textDecoration: "none" }}>Log in / Sign up →</a>
-          </div>
-        ) : status === "done" ? (
+        {status === "done" ? (
           <div style={{ textAlign: "center", paddingTop: 24 }}>
             <div style={{ fontSize: 40 }}>✅</div>
             <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>Listing submitted!</h1>
             <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
-              Thanks for helping fellow interns. We&apos;ll review it and publish it shortly.
+              {posterType === "landlord"
+                ? "Thanks! Landlord listings are reviewed before they go public."
+                : "Thanks for helping fellow interns. We'll review and publish it shortly."}
             </p>
             <a href="/" style={{ display: "inline-block", marginTop: 22, padding: "13px 30px", borderRadius: 100, background: ACCENT, color: "#fff", fontWeight: 600, textDecoration: "none" }}>Back to listings →</a>
           </div>
         ) : (
           <>
             <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 34, fontWeight: 400, marginTop: 18 }}>List your place</h1>
-            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 6, marginBottom: 24 }}>
-              Short-term &amp; sublease housing for fellow verified interns.
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 6, marginBottom: 20 }}>
+              Short-term &amp; month-to-month housing for interns.
             </p>
 
+            <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+              <Toggle v="intern" emoji="🎓" labelText="I'm an intern subletting" />
+              <Toggle v="landlord" emoji="🏠" labelText="I'm a landlord / property" />
+            </div>
+
+            {posterType === "intern" && !signedIn && (
+              <div style={{ marginBottom: 16, padding: 14, borderRadius: 12, background: `${ACCENT}15`, border: `1px solid ${ACCENT}40`, fontSize: 13, color: "rgba(255,255,255,0.8)" }}>
+                🎓 Posting as an intern requires a verified <b>.edu</b> account. <a href="/signup" style={{ color: "#fff" }}>Sign up →</a>
+              </div>
+            )}
+
             <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {posterType === "landlord" && (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+                  <div><label style={label}>Your name / company</label>
+                    <input required style={input} placeholder="e.g. Bay Property Mgmt" value={f.landlordName} onChange={set("landlordName")} /></div>
+                  <div><label style={label}>Contact (email or phone)</label>
+                    <input required style={input} placeholder="you@company.com" value={f.landlordContact} onChange={set("landlordContact")} /></div>
+                </div>
+              )}
+
               <div><label style={label}>Title</label>
                 <input required style={input} placeholder="1BR near Meta, June–Aug" value={f.title} onChange={set("title")} /></div>
 
@@ -219,17 +222,23 @@ export default function ListPage() {
               <div><label style={label}>Photos</label>
                 <input type="file" accept="image/*" multiple onChange={(e) => setPhotos(e.target.files)} style={{ ...input, padding: 10 }} /></div>
 
-              <div><label style={label}>Lease / proof of right to sublease (optional, private)</label>
-                <input type="file" accept="image/*,application/pdf" onChange={(e) => setLease(e.target.files?.[0] ?? null)} style={{ ...input, padding: 10 }} /></div>
-
-              <label style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
-                <input type="checkbox" checked={rightToSublease} onChange={(e) => setRightToSublease(e.target.checked)} style={{ marginTop: 3 }} />
-                I confirm I have the right to sublease this place.
-              </label>
-              <label style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
-                <input type="checkbox" checked={landlordOk} onChange={(e) => setLandlordOk(e.target.checked)} style={{ marginTop: 3 }} />
-                My lease allows subletting / I have landlord permission.
-              </label>
+              {posterType === "intern" ? (
+                <>
+                  <label style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
+                    <input type="checkbox" checked={attest1} onChange={(e) => setAttest1(e.target.checked)} style={{ marginTop: 3 }} />
+                    I confirm I have the right to sublease this place.
+                  </label>
+                  <label style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
+                    <input type="checkbox" checked={attest2} onChange={(e) => setAttest2(e.target.checked)} style={{ marginTop: 3 }} />
+                    My lease allows subletting / I have landlord permission.
+                  </label>
+                </>
+              ) : (
+                <label style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: "rgba(255,255,255,0.7)" }}>
+                  <input type="checkbox" checked={attest1} onChange={(e) => setAttest1(e.target.checked)} style={{ marginTop: 3 }} />
+                  I&apos;m authorized to list this property for lease/sublease.
+                </label>
+              )}
 
               {error && <p style={{ color: "#ff6b6b", fontSize: 13 }}>{error}</p>}
 

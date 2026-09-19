@@ -255,9 +255,14 @@ const ListingCard = ({ listing, cityColor, index, isHighlighted, onSelect, isSav
           <div style={{ fontSize: 13, color: "var(--text-muted)", fontFamily: "'DM Sans', sans-serif", marginTop: 3 }}>
             {listing.type} · {listing.dates}
           </div>
-          <span style={{ display: "inline-block", marginTop: 6, padding: "2px 10px", borderRadius: 100, background: `${cityColor}18`, color: cityColor, fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
-            🗓️ Month-to-month
-          </span>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+            <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: 100, background: `${cityColor}18`, color: cityColor, fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
+              🗓️ Month-to-month
+            </span>
+            <span style={{ display: "inline-block", padding: "2px 10px", borderRadius: 100, background: "rgba(255,255,255,0.06)", color: "var(--text-muted)", fontSize: 11, fontWeight: 700, fontFamily: "'DM Sans', sans-serif" }}>
+              {listing.posterType === "landlord" ? "🏠 Landlord" : "🎓 Intern sublet"}
+            </span>
+          </div>
         </div>
       </div>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 8, flexShrink: 0 }}>
