@@ -2,7 +2,7 @@
 
 # 🪺 InternNest
 
-### Your city. Your summer. Your people.
+### Your city. Your internship. Your people.
 
 **Find subleases, navigate transit, and connect with fellow interns — all in one place.**
 _Built for interns, by interns._
@@ -19,7 +19,7 @@ _Built for interns, by interns._
 
 ## The Problem
 
-College students doing 8–12 week summer internships in unfamiliar cities have to find short-term
+College students doing 8–12 week internships in unfamiliar cities have to find short-term
 housing on their own. It's **stressful, time-consuming, and isolating** — and generic listing sites
 aren't built for sublease-length stays, for trusting a stranger sight-unseen, or for the social side
 of moving somewhere new alone.

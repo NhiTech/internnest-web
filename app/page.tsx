@@ -119,10 +119,10 @@ export default function HomePage() {
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-4 pb-6 pt-10 text-center">
         <p className="text-sm font-semibold uppercase tracking-wide text-indigo-600">
-          Summer 2026 Internships
+          Internship Housing & Community
         </p>
         <h1 className="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl">
-          Your city. Your summer. Your people.
+          Your city. Your internship. Your people.
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
           Find subleases, navigate transit, and connect with fellow interns — all

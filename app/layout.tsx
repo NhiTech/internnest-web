@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "InternNest — Your city. Your summer. Your people.",
+  title: "InternNest — Your city. Your internship. Your people.",
   description:
     "Find subleases, navigate transit, and connect with fellow interns — all in one place. Built for interns, by interns.",
 };
