@@ -1010,7 +1010,7 @@ export default function InternHub() {
                       textAlign: "center", padding: 60, color: "var(--text-muted)",
                       fontSize: 16, borderRadius: 20, border: "1px dashed var(--border)",
                     }}>
-                      No listings match your search. Try adjusting filters.
+                      No verified listings yet — be the first to list your place below.
                     </div>
                   );
                 })()}
@@ -1028,12 +1028,12 @@ export default function InternHub() {
                   <div style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 18 }}>
                     Help fellow interns find housing in {selectedCity.name}
                   </div>
-                  <button onClick={() => setShowAddListing(true)} style={{
+                  <button onClick={() => (window.location.href = "/list")} style={{
                     padding: "12px 32px", borderRadius: 100, border: "none",
                     background: selectedCity.color, color: "#fff", fontSize: 15,
                     fontWeight: 600, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
                   }}>
-                    + Post a Listing
+                    + List your place
                   </button>
                 </div>
               </div>
