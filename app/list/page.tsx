@@ -46,8 +46,6 @@ export default function ListPage() {
     price: "", startDate: "", endDate: "", leaseType: "sublease", amenities: "",
     landlordName: "", landlordContact: "",
   });
-  const [photos, setPhotos] = useState<FileList | null>(null);
-  const [lease, setLease] = useState<File | null>(null);
   const [attest1, setAttest1] = useState(false);
   const [attest2, setAttest2] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
@@ -219,8 +217,6 @@ export default function ListPage() {
                   <input required type="date" style={input} value={f.endDate} onChange={set("endDate")} /></div>
               </div>
 
-              <div><label style={label}>Photos</label>
-                <input type="file" accept="image/*" multiple onChange={(e) => setPhotos(e.target.files)} style={{ ...input, padding: 10 }} /></div>
 
               {posterType === "intern" ? (
                 <>
