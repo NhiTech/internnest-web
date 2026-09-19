@@ -735,7 +735,7 @@ export default function InternHub() {
               color: selectedCity.color,
               transition: "color 0.5s ease",
             }}>
-              Your summer.
+              Your internship.
             </span>
             <br />Your people.
           </h1>
@@ -1023,7 +1023,7 @@ export default function InternHub() {
                   textAlign: "center",
                 }}>
                   <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 22, marginBottom: 8, color: "var(--text)" }}>
-                    Subleasing your place this summer?
+                    Subleasing your place?
                   </div>
                   <div style={{ fontSize: 14, color: "var(--text-muted)", marginBottom: 18 }}>
                     Help fellow interns find housing in {selectedCity.name}
@@ -1136,7 +1136,7 @@ export default function InternHub() {
               background: `${selectedCity.color}10`, border: `1px solid ${selectedCity.color}20`,
             }}>
               <span style={{ fontSize: 15, color: "var(--text-med)" }}>
-                🎉 Connect with other interns in <strong style={{ color: selectedCity.color }}>{selectedCity.name}</strong> this summer
+                🎉 Connect with other interns in <strong style={{ color: selectedCity.color }}>{selectedCity.name}</strong>
               </span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

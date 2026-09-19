@@ -319,7 +319,7 @@ export default function InternNestMVP() {
                 fontSize: 13, color: "rgba(255,255,255,0.6)", marginBottom: 28,
                 fontFamily: "var(--font-body)", letterSpacing: "0.04em",
               }}>
-                Summer 2026 — Atlanta & New York City
+                Internship housing — Atlanta & New York City
               </div>
 
               <h1 style={{
@@ -359,7 +359,7 @@ export default function InternNestMVP() {
                 {[
                   { step: "01", title: "Tell us about your internship", desc: "City, dates, company, budget, and what matters most to you.", icon: "📝" },
                   { step: "02", title: "Get matched to neighborhoods", desc: "We rank neighborhoods by commute, cost, safety, and vibe — personalized for you.", icon: "🗺️" },
-                  { step: "03", title: "Join your intern community", desc: "We'll add you to a Slack/GroupMe with other interns in your city this summer.", icon: "💬" },
+                  { step: "03", title: "Join your intern community", desc: "We'll add you to a Slack/GroupMe with other interns in your city.", icon: "💬" },
                 ].map((item, i) => (
                   <div key={i} style={{
                     background: "rgba(255,255,255,0.03)", borderRadius: 20, padding: 26,
@@ -397,7 +397,7 @@ export default function InternNestMVP() {
           <div style={{ padding: "32px 0 60px", animation: "fadeSlideUp 0.5s ease" }}>
             <div style={{ textAlign: "center", marginBottom: 40 }}>
               <h2 style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 400 }}>
-                Tell us about your <span style={{ fontStyle: "italic", color: accentColor }}>summer</span>
+                Tell us about your <span style={{ fontStyle: "italic", color: accentColor }}>internship</span>
               </h2>
               <p style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", marginTop: 10, fontFamily: "var(--font-body)" }}>
                 Takes ~2 minutes. We'll use this to find your best neighborhood.
@@ -538,7 +538,7 @@ export default function InternNestMVP() {
                     Add me to the intern community
                   </div>
                   <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginTop: 3, fontFamily: "var(--font-body)" }}>
-                    Join a Slack/GroupMe with other interns in your city this summer
+                    Join a Slack/GroupMe with other interns in your city
                   </div>
                 </div>
               </div>
@@ -597,7 +597,7 @@ export default function InternNestMVP() {
                   Join the {cityData.city} Intern Community
                 </div>
                 <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", marginBottom: 20, fontFamily: "var(--font-body)", maxWidth: 400, margin: "0 auto 20px" }}>
-                  Connect with other interns arriving in {cityData.city} this summer. Share tips, find roommates, plan events.
+                  Connect with other interns arriving in {cityData.city}. Share tips, find roommates, plan events.
                 </div>
                 <button style={{
                   padding: "14px 36px", borderRadius: 100, border: "none",
