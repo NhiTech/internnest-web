@@ -715,6 +715,13 @@ export default function InternHub() {
             >
               {darkMode ? "☀️" : "🌙"}
             </button>
+            <button onClick={() => (window.location.href = "/profile")} style={{
+              padding: "10px 22px", borderRadius: 100, border: "1px solid var(--border)",
+              background: "transparent", color: "var(--text)", fontSize: 14, fontWeight: 500,
+              cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+            }}>
+              Profile
+            </button>
             <button onClick={() => (window.location.href = "/login")} style={{
               padding: "10px 22px", borderRadius: 100, border: "1px solid var(--border)",
               background: "transparent", color: "var(--text)", fontSize: 14, fontWeight: 500,
