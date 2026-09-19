@@ -661,6 +661,13 @@ export default function InternHub() {
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
+        @media (max-width: 768px) {
+          .inn-container { padding: 0 16px !important; }
+          .inn-header { flex-wrap: wrap !important; gap: 10px !important; }
+          .inn-cols { flex-direction: column !important; gap: 24px !important; }
+          .inn-map { width: 100% !important; }
+          .inn-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       {/* Ambient background */}
@@ -679,10 +686,10 @@ export default function InternHub() {
         }} />
       </div>
 
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 1440, margin: "0 auto", padding: "0 32px" }}>
+      <div className="inn-container" style={{ position: "relative", zIndex: 1, maxWidth: 1440, margin: "0 auto", padding: "0 32px" }}>
 
         {/* Header */}
-        <header style={{
+        <header className="inn-header" style={{
           display: "flex", justifyContent: "space-between", alignItems: "center",
           padding: "24px 0", animation: "slideDown 0.6s ease",
         }}>
@@ -1028,7 +1035,7 @@ export default function InternHub() {
             </div>
 
             {/* Listings + Map side by side */}
-            <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+            <div className="inn-cols" style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
 
               {/* Listings column */}
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 16 }}>
@@ -1073,7 +1080,7 @@ export default function InternHub() {
 
               {/* Map column — sticky, only for cities with coordinates */}
               {hasMapData && (
-                <div style={{ width: 400, flexShrink: 0 }}>
+                <div className="inn-map" style={{ width: 400, flexShrink: 0 }}>
                   <div style={{ position: "sticky", top: 24 }}>
                     <ApartmentMap
                       listings={filteredListings}
@@ -1126,7 +1133,7 @@ export default function InternHub() {
                   Neighborhood guide coming soon for {selectedCity.name}.
                 </div>
               ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 20 }}>
+                <div className="inn-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: 20 }}>
                   {cityNeighborhoods.map((n, i) => (
                     <NeighborhoodCard
                       key={n.name}
