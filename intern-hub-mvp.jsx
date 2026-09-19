@@ -13,6 +13,9 @@ import {
 } from "./lib/fallback-data";
 import { getCities, getListings, getTransport, getInterestGroups } from "./lib/data";
 
+// TODO: replace with your real InternNest Discord invite link.
+const DISCORD_INVITE = "https://discord.gg/your-invite-code";
+
 // Sub-components use CSS vars (var(--*)) for all neutral colors.
 // Variables are injected by the main component's <style> block and cascade through the DOM.
 
@@ -1159,6 +1162,27 @@ export default function InternHub() {
                 🎉 Connect with other interns in <strong style={{ color: selectedCity.color }}>{selectedCity.name}</strong>
               </span>
             </div>
+
+            <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" style={{
+              display: "flex", alignItems: "center", gap: 16, textDecoration: "none",
+              marginBottom: 24, padding: 22, borderRadius: 18,
+              background: "linear-gradient(135deg, rgba(88,101,242,0.18), rgba(88,101,242,0.06))",
+              border: "1px solid rgba(88,101,242,0.4)",
+            }}>
+              <span style={{ fontSize: 34 }}>💬</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 20, color: "var(--text)" }}>
+                  Join the InternNest Discord
+                </div>
+                <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 2 }}>
+                  Verified interns only — {selectedCity.name} channels for housing, roommates, transit &amp; meetups.
+                </div>
+              </div>
+              <span style={{ padding: "10px 22px", borderRadius: 100, background: "#5865F2", color: "#fff", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>
+                Join →
+              </span>
+            </a>
+
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[...(interestGroupsData[selectedCity.id] || []), ...localGroups.filter(g => g.cityId === selectedCity.id)].map((g, i) => (
                 <GroupCard key={g.name + i} g={g} index={i} cityColor={selectedCity.color} />
