@@ -689,14 +689,14 @@ export default function InternHub() {
             </span>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-            <button onClick={() => setShowComingSoon(true)} style={{
+            <button onClick={() => (window.location.href = "/login")} style={{
               padding: "10px 22px", borderRadius: 100, border: "1px solid var(--border)",
               background: "transparent", color: "var(--text)", fontSize: 14, fontWeight: 500,
               cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
             }}>
               Log in
             </button>
-            <button onClick={() => setShowComingSoon(true)} style={{
+            <button onClick={() => (window.location.href = "/signup")} style={{
               padding: "10px 22px", borderRadius: 100, border: "none",
               background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 600,
               cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
@@ -717,7 +717,7 @@ export default function InternHub() {
             letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16,
             transition: "color 0.5s ease",
           }}>
-            Summer 2026 Internships
+            Internship Housing &amp; Community
           </div>
           <h1 style={{
             fontFamily: "'Instrument Serif', Georgia, serif",
