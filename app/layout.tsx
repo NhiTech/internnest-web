@@ -1,12 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 const DESC =
   "Find subleases, navigate transit, and connect with fellow interns — all in one place. Built for interns, by interns.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://internnest-web.vercel.app"),
+  metadataBase: new URL("https://internnest-web.pages.dev"),
   title: "InternNest — Your city. Your internship. Your people.",
   description: DESC,
   manifest: "/manifest.webmanifest",
@@ -15,7 +14,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "InternNest — Your city. Your internship. Your people.",
     description: DESC,
-    url: "https://internnest-web.vercel.app",
+    url: "https://internnest-web.pages.dev",
     siteName: "InternNest",
     type: "website",
   },
@@ -39,7 +38,6 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen bg-[#08080D] text-white antialiased">
         {children}
-        <Analytics />
       </body>
     </html>
   );

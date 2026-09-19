@@ -303,15 +303,18 @@ usage evidence for the **3–6 month employer outreach** (Roadmap).
 
 ---
 
-## Architecture & Tech (verified from the repo)
-- **Frontend:** **Next.js 14** (App Router, `src/app/`), **React 18**, **TypeScript**. Light/dark mode; client-side city/listing filtering.
-- **Backend / DB:** **Supabase** (`@supabase/supabase-js`). Tables: `cities`, `neighborhoods`, `listings`, transport options, interest groups.
-- **Data layer w/ graceful fallback:** `lib/data.ts` fetches from Supabase but **falls back to hardcoded `lib/fallback-data.ts`** whenever Supabase isn't configured (`isSupabaseConfigured`). So the app renders even with no DB — the live site may currently be running on fallback data.
-- **Seeding:** `scripts/seed-supabase.mjs` (`npm run seed`) upserts the fallback dataset into Supabase (requires `SUPABASE_SERVICE_ROLE_KEY`).
+## Architecture & Tech (current)
+- **Frontend:** **Next.js 14** (App Router, root `app/`), **React 18**, **TypeScript**, built as a **static export** (`output: "export"` → `out/`). Dark theme with a light/dark toggle.
+- **Main UI:** the ported `intern-hub-mvp.jsx` (browse/listings/map/community) + `internnest-mvp.jsx`; dedicated pages under `app/` for `signup`, `login`, `profile`, `connect`, `list`, `terms`, `privacy`.
+- **Backend = Supabase** (no custom server — the client calls it directly):
+  - **Auth** — `.edu` verification via **email OTP (6-digit code)** on signup/login.
+  - **Postgres** — `listings` (profiles/inquiries planned). See `docs/supabase-setup.md` for schema + RLS.
+  - **Storage** — buckets for listing photos + (private) lease docs.
+  - Config in `lib/supabase.ts` (public URL + anon key; env-overridable).
+- **Data layer w/ graceful fallback:** `lib/data.ts` fetches from Supabase, else falls back to `lib/fallback-data.ts` — runs with zero backend config. Until the tables exist, posted listings/profiles/inquiries live in the browser (localStorage).
 - **Maps:** Leaflet / react-leaflet (`components/ApartmentMap.jsx`).
-- **Deploy:** Vercel (`vercel.json`, `next.config.mjs`).
-- **Auth: not yet implemented.** No auth dependency in `package.json`; "Log in / Sign up" and likely "Post a Listing" appear to be UI-only. Supabase Auth is the natural fit to wire next.
-- **Legacy:** root `intern-hub-mvp.jsx` / `internnest-mvp.jsx` are earlier single-file prototypes; the live app is `src/app/`.
+- **PWA:** web manifest + app icon → installable (add to home screen, full-screen).
+- **Hosting:** **Cloudflare Pages** (static) — live at **internnest-web.pages.dev**. (Also deployable to Vercel.)
 
 ---
 

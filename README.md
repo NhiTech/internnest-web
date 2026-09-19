@@ -12,8 +12,9 @@ _Built for interns, by interns._
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38BDF8?logo=tailwindcss&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-Postgres-3ECF8E?logo=supabase&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20Postgres-3ECF8E?logo=supabase&logoColor=white)
+![Cloudflare Pages](https://img.shields.io/badge/Cloudflare_Pages-live-F38020?logo=cloudflare&logoColor=white)
+![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8)
 
 </div>
 
@@ -54,11 +55,13 @@ same city**, so they can focus on the internship instead of the logistics.
 
 | Layer | Choice |
 |---|---|
-| Framework | **Next.js 14** (App Router) |
+| Framework | **Next.js 14** (App Router) — built as a **static export** (`output: "export"`) |
 | Language | **TypeScript** |
-| UI | **React 18** + **Tailwind CSS** |
-| Data / Backend | **Supabase** (Postgres) — with a built-in **hardcoded-data fallback** so the app runs with zero config |
-| Hosting | **Vercel** |
+| UI | **React 18**; Tailwind + inline styles; **Leaflet** for maps |
+| **Backend** | **Supabase** — **Auth** (`.edu` verification), **Postgres** (listings/profiles), **Storage** (lease/photo uploads). Talks to it directly from the client; **no custom server.** |
+| Fallback | Built-in `lib/fallback-data.ts` so the app runs with **zero backend config** |
+| Hosting | **Cloudflare Pages** (static) — live at [internnest-web.pages.dev](https://internnest-web.pages.dev) |
+| App | Installable **PWA** (add to home screen, full-screen, app icon) |
 
 ---
 
@@ -88,6 +91,22 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 If these aren't set, `lib/data.ts` automatically falls back to `lib/fallback-data.ts` — so nothing
 breaks.
+
+## 🗄️ Backend
+
+There's **no custom server** — the static frontend talks directly to **Supabase**:
+- **Auth** — `.edu` verification via email OTP (6-digit code).
+- **Postgres** — `listings`, and (planned) profiles / inquiries. See [`docs/supabase-setup.md`](docs/supabase-setup.md) for the schema + RLS.
+- **Storage** — buckets for listing photos and (private) lease documents.
+
+Until the tables exist, listings/profiles live in the browser (localStorage) and cities/neighborhoods come from the fallback data.
+
+## ☁️ Deploy (Cloudflare Pages)
+
+Static export hosted on **Cloudflare Pages**:
+- **Build command:** `npm run build`
+- **Output directory:** `out`
+- Live: **[internnest-web.pages.dev](https://internnest-web.pages.dev)**
 
 ---
 
