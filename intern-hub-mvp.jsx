@@ -539,6 +539,10 @@ export default function InternHub() {
   const [contactMsg, setContactMsg] = useState("");
   const [contactSent, setContactSent] = useState(false);
   const [activeNeighborhood, setActiveNeighborhood] = useState(null);
+  const [me, setMe] = useState(null);
+  useEffect(() => {
+    try { setMe(JSON.parse(localStorage.getItem("internnest_user") || "null")); } catch {}
+  }, []);
 
   // Load listings posted via /list (persisted in the browser) so they show up.
   useEffect(() => {
@@ -736,28 +740,44 @@ export default function InternHub() {
             >
               {darkMode ? "☀️" : "🌙"}
             </button>
-            <button onClick={() => (window.location.href = "/profile")} style={{
-              padding: "10px 22px", borderRadius: 100, border: "1px solid var(--border)",
-              background: "transparent", color: "var(--text)", fontSize: 14, fontWeight: 500,
-              cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
-            }}>
-              Profile
-            </button>
-            <button onClick={() => (window.location.href = "/login")} style={{
-              padding: "10px 22px", borderRadius: 100, border: "1px solid var(--border)",
-              background: "transparent", color: "var(--text)", fontSize: 14, fontWeight: 500,
-              cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
-            }}>
-              Log in
-            </button>
-            <button onClick={() => (window.location.href = "/signup")} style={{
-              padding: "10px 22px", borderRadius: 100, border: "none",
-              background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 600,
-              cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
-              transition: "background 0.3s ease",
-            }}>
-              Sign up
-            </button>
+            {me ? (
+              <>
+                <button onClick={() => (window.location.href = "/profile")} style={{
+                  display: "flex", alignItems: "center", gap: 8, padding: "5px 14px 5px 5px", borderRadius: 100,
+                  border: "1px solid var(--border)", background: "transparent", color: "var(--text)",
+                  fontSize: 14, fontWeight: 500, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  <span style={{ width: 28, height: 28, borderRadius: "50%", background: `linear-gradient(135deg, ${selectedCity.color}, ${selectedCity.color}80)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#fff" }}>
+                    {(me.name || "?").charAt(0).toUpperCase()}
+                  </span>
+                  {(me.name || "Profile").split(" ")[0]}
+                </button>
+                <button onClick={() => { localStorage.removeItem("internnest_user"); window.location.reload(); }} style={{
+                  padding: "10px 18px", borderRadius: 100, border: "1px solid var(--border)",
+                  background: "transparent", color: "var(--text-muted)", fontSize: 14, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => (window.location.href = "/login")} style={{
+                  padding: "10px 22px", borderRadius: 100, border: "1px solid var(--border)",
+                  background: "transparent", color: "var(--text)", fontSize: 14, fontWeight: 500,
+                  cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                }}>
+                  Log in
+                </button>
+                <button onClick={() => (window.location.href = "/signup")} style={{
+                  padding: "10px 22px", borderRadius: 100, border: "none",
+                  background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 600,
+                  cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
+                  transition: "background 0.3s ease",
+                }}>
+                  Sign up
+                </button>
+              </>
+            )}
           </div>
         </header>
 
