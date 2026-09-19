@@ -40,7 +40,7 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [f, setF] = useState({
     name: "", email: "", school: "", city: CITIES[0],
-    company: "", startDate: "", endDate: "", budget: "", bio: "",
+    company: "", startDate: "", endDate: "", budget: "", bio: "", linkedin: "",
   });
   const [interests, setInterests] = useState<string[]>([]);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
@@ -135,6 +135,9 @@ export default function SignupPage() {
 
               <div><label style={label}>Monthly budget ($)</label>
                 <input type="number" style={input} placeholder="2000" value={f.budget} onChange={set("budget")} /></div>
+
+              <div><label style={label}>LinkedIn (optional — so others can connect)</label>
+                <input style={input} placeholder="linkedin.com/in/you" value={f.linkedin} onChange={set("linkedin")} /></div>
 
               <div>
                 <label style={label}>Interests (pick a few — helps you find your people)</label>

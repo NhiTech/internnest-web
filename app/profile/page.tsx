@@ -7,7 +7,7 @@ const ACCENT = "#6C63FF";
 type Profile = {
   name?: string; email?: string; school?: string; city?: string;
   company?: string; startDate?: string; endDate?: string; budget?: string;
-  bio?: string; interests?: string[];
+  bio?: string; interests?: string[]; linkedin?: string;
 };
 
 const page: React.CSSProperties = {
@@ -85,6 +85,12 @@ export default function ProfilePage() {
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 18 }}>
                 {p.interests.map((i) => <span key={i} style={chip}>{i}</span>)}
               </div>
+            )}
+
+            {p.linkedin && (
+              <a href={p.linkedin.startsWith("http") ? p.linkedin : `https://${p.linkedin}`} target="_blank" rel="noreferrer" style={{ display: "inline-block", marginTop: 18, padding: "10px 20px", borderRadius: 100, background: "#0A66C2", color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>
+                in · Connect on LinkedIn →
+              </a>
             )}
 
             <div style={{ marginTop: 22 }}>
