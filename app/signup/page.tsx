@@ -35,9 +35,10 @@ const input: React.CSSProperties = {
 };
 
 export default function SignupPage() {
-  const [status, setStatus] = useState<"form" | "sent" | "stub">("form");
-  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState<"form" | "code" | "done" | "stub">("form");
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [code, setCode] = useState("");
   const [f, setF] = useState({
     name: "", email: "", school: "", city: CITIES[0],
     company: "", startDate: "", endDate: "", budget: "", bio: "", linkedin: "",
@@ -52,27 +53,37 @@ export default function SignupPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (!eduOk) {
-      setError("Please use your school's .edu email — that's how we verify interns.");
-      return;
-    }
-    setSending(true);
-
+    if (!eduOk) { setError("Students only — use your school's .edu email."); return; }
+    setBusy(true);
     const profile = { ...f, interests };
-    // Always save locally so the profile page can render it.
     localStorage.setItem("internnest_user", JSON.stringify(profile));
 
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase.auth.signInWithOtp({
         email: f.email.trim(),
-        options: { emailRedirectTo: window.location.origin, data: profile },
+        options: { data: profile },
       });
-      setSending(false);
+      setBusy(false);
       if (error) { setError(error.message); return; }
-      setStatus("sent");
+      setStatus("code");
     } else {
-      setSending(false);
+      setBusy(false);
       setStatus("stub");
+    }
+  };
+
+  const verify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setBusy(true);
+    if (isSupabaseConfigured && supabase) {
+      const { error } = await supabase.auth.verifyOtp({ email: f.email.trim(), token: code.trim(), type: "email" });
+      setBusy(false);
+      if (error) { setError("Invalid or expired code — try again."); return; }
+      setStatus("done");
+    } else {
+      setBusy(false);
+      setStatus("done");
     }
   };
 
@@ -86,24 +97,35 @@ export default function SignupPage() {
       <div style={card}>
         <a href="/" style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>← Back to InternNest</a>
 
-        {status === "sent" || status === "stub" ? (
+        {status === "done" || status === "stub" ? (
           <div style={{ textAlign: "center", paddingTop: 24 }}>
-            <div style={{ fontSize: 40 }}>{status === "sent" ? "📬" : "🪺"}</div>
-            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>
-              {status === "sent" ? "Check your email" : "You're in the nest!"}
-            </h1>
+            <div style={{ fontSize: 40 }}>🪺</div>
+            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>You&apos;re verified!</h1>
             <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
-              {status === "sent"
-                ? <>We sent a secure login link to <b>{f.email}</b>. Click it to verify your .edu.</>
-                : <>Your profile is set up. Connect Supabase to make it shareable with other interns.</>}
+              Your intern profile is set up. Welcome to InternNest.
             </p>
             <a href="/profile" style={{ display: "inline-block", marginTop: 22, padding: "13px 30px", borderRadius: 100, background: ACCENT, color: "#fff", fontWeight: 600, textDecoration: "none" }}>View your profile →</a>
           </div>
+        ) : status === "code" ? (
+          <>
+            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 32, fontWeight: 400, marginTop: 18 }}>Verify your .edu</h1>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 6, marginBottom: 24 }}>
+              We sent a 6-digit code to <b>{f.email}</b>. Enter it to confirm you&apos;re a student.
+            </p>
+            <form onSubmit={verify} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <input required inputMode="numeric" style={{ ...input, textAlign: "center", fontSize: 24, letterSpacing: 8 }} placeholder="000000" value={code} onChange={(e) => setCode(e.target.value)} />
+              {error && <p style={{ color: "#ff6b6b", fontSize: 13 }}>{error}</p>}
+              <button type="submit" disabled={busy} style={{ padding: "14px", borderRadius: 100, border: "none", background: ACCENT, color: "#fff", fontSize: 15, fontWeight: 700, cursor: busy ? "not-allowed" : "pointer", opacity: busy ? 0.6 : 1 }}>
+                {busy ? "Verifying…" : "Verify & create account"}
+              </button>
+              <button type="button" onClick={() => setStatus("form")} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 13, cursor: "pointer" }}>← Edit details</button>
+            </form>
+          </>
         ) : (
           <>
             <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 34, fontWeight: 400, marginTop: 18 }}>Create your account</h1>
             <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 6, marginBottom: 24 }}>
-              Build your intern profile — others in your city can find you.
+              Students only — build your intern profile and find your people.
             </p>
 
             <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -112,7 +134,7 @@ export default function SignupPage() {
 
               <div><label style={label}>School email (.edu)</label>
                 <input required type="email" style={input} placeholder="you@university.edu" value={f.email} onChange={set("email")} />
-                {f.email && !eduOk && <p style={{ color: "#f0b34a", fontSize: 12, marginTop: 6 }}>Use your school&apos;s .edu email.</p>}</div>
+                {f.email && !eduOk && <p style={{ color: "#f0b34a", fontSize: 12, marginTop: 6 }}>Students only — use your .edu email.</p>}</div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 <div><label style={label}>School</label>
@@ -162,8 +184,8 @@ export default function SignupPage() {
 
               {error && <p style={{ color: "#ff6b6b", fontSize: 13 }}>{error}</p>}
 
-              <button type="submit" disabled={sending} style={{ marginTop: 6, padding: "14px", borderRadius: 100, border: "none", background: ACCENT, color: "#fff", fontSize: 15, fontWeight: 700, cursor: sending ? "not-allowed" : "pointer", opacity: sending ? 0.6 : 1, boxShadow: `0 4px 24px ${ACCENT}40` }}>
-                {sending ? "Sending…" : "Create account"}
+              <button type="submit" disabled={busy} style={{ marginTop: 6, padding: "14px", borderRadius: 100, border: "none", background: ACCENT, color: "#fff", fontSize: 15, fontWeight: 700, cursor: busy ? "not-allowed" : "pointer", opacity: busy ? 0.6 : 1, boxShadow: `0 4px 24px ${ACCENT}40` }}>
+                {busy ? "Sending code…" : "Create account"}
               </button>
               <p style={{ textAlign: "center", fontSize: 13, color: "rgba(255,255,255,0.45)" }}>
                 Already have an account? <a href="/login" style={{ color: ACCENT, textDecoration: "none" }}>Log in</a>
