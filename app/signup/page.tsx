@@ -8,6 +8,10 @@ const CITIES = [
   "San Francisco", "New York", "Boston", "Chicago",
   "Atlanta", "Seattle", "Los Angeles", "Washington, DC",
 ];
+const INTERESTS = [
+  "Hiking", "Food", "Fitness", "Tech", "Music", "Art",
+  "Gaming", "Coffee", "Travel", "Sports", "Reading", "Nightlife",
+];
 
 const page: React.CSSProperties = {
   minHeight: "100vh", background: "#0A0A0F", color: "#fff",
@@ -36,10 +40,13 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [f, setF] = useState({
     name: "", email: "", school: "", city: CITIES[0],
-    company: "", startDate: "", endDate: "", budget: "",
+    company: "", startDate: "", endDate: "", budget: "", bio: "",
   });
+  const [interests, setInterests] = useState<string[]>([]);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) =>
     setF({ ...f, [k]: e.target.value });
+  const toggleInterest = (i: string) =>
+    setInterests((prev) => (prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i]));
   const eduOk = /\.edu\s*$/i.test(f.email.trim());
 
   const submit = async (e: React.FormEvent) => {
@@ -51,22 +58,19 @@ export default function SignupPage() {
     }
     setSending(true);
 
+    const profile = { ...f, interests };
+    // Always save locally so the profile page can render it.
+    localStorage.setItem("internnest_user", JSON.stringify(profile));
+
     if (isSupabaseConfigured && supabase) {
       const { error } = await supabase.auth.signInWithOtp({
         email: f.email.trim(),
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: {
-            name: f.name, school: f.school, city: f.city, company: f.company,
-            start_date: f.startDate, end_date: f.endDate, budget: f.budget,
-          },
-        },
+        options: { emailRedirectTo: window.location.origin, data: profile },
       });
       setSending(false);
       if (error) { setError(error.message); return; }
       setStatus("sent");
     } else {
-      localStorage.setItem("internnest_user", JSON.stringify(f));
       setSending(false);
       setStatus("stub");
     }
@@ -75,36 +79,31 @@ export default function SignupPage() {
   return (
     <div style={page}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
-        input:focus,select:focus{border-color:${ACCENT}!important;box-shadow:0 0 0 3px ${ACCENT}22}
+        input:focus,select:focus,textarea:focus{border-color:${ACCENT}!important;box-shadow:0 0 0 3px ${ACCENT}22}
         select option{background:#1a1a2e;color:#fff}`}</style>
       <div style={{ position: "fixed", top: "-15%", right: "-10%", width: 600, height: 600, borderRadius: "50%", background: `radial-gradient(circle, ${ACCENT}12, transparent 65%)`, pointerEvents: "none" }} />
 
       <div style={card}>
         <a href="/" style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, textDecoration: "none" }}>← Back to InternNest</a>
 
-        {status === "sent" ? (
+        {status === "sent" || status === "stub" ? (
           <div style={{ textAlign: "center", paddingTop: 24 }}>
-            <div style={{ fontSize: 40 }}>📬</div>
-            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>Check your email</h1>
+            <div style={{ fontSize: 40 }}>{status === "sent" ? "📬" : "🪺"}</div>
+            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>
+              {status === "sent" ? "Check your email" : "You're in the nest!"}
+            </h1>
             <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
-              We sent a secure login link to <b>{f.email}</b>. Click it to verify your
-              .edu and finish creating your account.
+              {status === "sent"
+                ? <>We sent a secure login link to <b>{f.email}</b>. Click it to verify your .edu.</>
+                : <>Your profile is set up. Connect Supabase to make it shareable with other interns.</>}
             </p>
-          </div>
-        ) : status === "stub" ? (
-          <div style={{ textAlign: "center", paddingTop: 24 }}>
-            <div style={{ fontSize: 40 }}>🪺</div>
-            <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 30, fontWeight: 400, marginTop: 10 }}>You&apos;re in the nest!</h1>
-            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, marginTop: 10, lineHeight: 1.6 }}>
-              Saved locally for now — connect Supabase to send a real .edu verification link.
-            </p>
-            <a href="/" style={{ display: "inline-block", marginTop: 22, padding: "13px 30px", borderRadius: 100, background: ACCENT, color: "#fff", fontWeight: 600, textDecoration: "none" }}>Browse housing →</a>
+            <a href="/profile" style={{ display: "inline-block", marginTop: 22, padding: "13px 30px", borderRadius: 100, background: ACCENT, color: "#fff", fontWeight: 600, textDecoration: "none" }}>View your profile →</a>
           </div>
         ) : (
           <>
             <h1 style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 34, fontWeight: 400, marginTop: 18 }}>Create your account</h1>
             <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, marginTop: 6, marginBottom: 24 }}>
-              We&apos;ll verify your .edu and personalize housing &amp; community.
+              Build your intern profile — others in your city can find you.
             </p>
 
             <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -136,6 +135,27 @@ export default function SignupPage() {
 
               <div><label style={label}>Monthly budget ($)</label>
                 <input type="number" style={input} placeholder="2000" value={f.budget} onChange={set("budget")} /></div>
+
+              <div>
+                <label style={label}>Interests (pick a few — helps you find your people)</label>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {INTERESTS.map((i) => {
+                    const on = interests.includes(i);
+                    return (
+                      <button type="button" key={i} onClick={() => toggleInterest(i)} style={{
+                        padding: "7px 14px", borderRadius: 100, cursor: "pointer",
+                        fontSize: 13, fontFamily: "'DM Sans', sans-serif",
+                        background: on ? `${ACCENT}22` : "rgba(255,255,255,0.04)",
+                        border: on ? `1.5px solid ${ACCENT}` : "1px solid rgba(255,255,255,0.1)",
+                        color: on ? "#fff" : "rgba(255,255,255,0.6)",
+                      }}>{i}</button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div><label style={label}>Short bio (optional)</label>
+                <textarea style={{ ...input, minHeight: 70, resize: "vertical" }} placeholder="CS major who loves hiking and good coffee ☕" value={f.bio} onChange={set("bio")} /></div>
 
               {error && <p style={{ color: "#ff6b6b", fontSize: 13 }}>{error}</p>}
 
