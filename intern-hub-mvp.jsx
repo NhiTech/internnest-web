@@ -726,6 +726,7 @@ export default function InternHub() {
             <button
               onClick={() => setDarkMode(!darkMode)}
               title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
               style={{
                 width: 38, height: 38, borderRadius: 100,
                 border: "1px solid var(--border)", background: "var(--surface)",
@@ -1322,7 +1323,9 @@ export default function InternHub() {
                 >
                   Send message
                 </button>
-                <div style={{ fontSize: 12, color: "var(--text-subtle)", marginTop: 10, textAlign: "center" }}>You must be a verified intern to contact posters.</div>
+                <div style={{ fontSize: 12, color: "var(--text-subtle)", marginTop: 10, textAlign: "center", lineHeight: 1.5 }}>
+                  Verified interns only. ⚠️ Never send money (Zelle/Venmo/wire) before seeing and verifying the place in person.
+                </div>
               </>
             )}
           </div>
