@@ -76,6 +76,21 @@ export default function ListPage() {
     }
     setSending(true);
 
+    // Save a display-ready copy locally so it shows immediately in the Housing tab.
+    try {
+      const user = JSON.parse(localStorage.getItem("internnest_user") || "{}");
+      const local = JSON.parse(localStorage.getItem("internnest_local_listings") || "[]");
+      local.push({
+        id: Date.now(), cityId: f.city, title: f.title,
+        price: parseInt(f.price) || 0, type: f.size,
+        dates: `${f.startDate} – ${f.endDate}`,
+        amenities: f.amenities.split(",").map((a) => a.trim()).filter(Boolean),
+        poster: user.name || "You", posterCompany: user.company || "",
+        verified: true, img: "🏠", neighborhood: f.neighborhood || undefined,
+      });
+      localStorage.setItem("internnest_local_listings", JSON.stringify(local));
+    } catch {}
+
     if (isSupabaseConfigured && supabase) {
       try {
         // upload lease doc + photos to storage
@@ -120,9 +135,6 @@ export default function ListPage() {
         setSending(false);
       }
     } else {
-      const saved = JSON.parse(localStorage.getItem("internnest_listings") || "[]");
-      saved.push({ ...f, rightToSublease, landlordOk });
-      localStorage.setItem("internnest_listings", JSON.stringify(saved));
       setSending(false);
       setStatus("done");
     }

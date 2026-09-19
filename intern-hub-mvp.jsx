@@ -510,7 +510,7 @@ export default function InternHub() {
   const [neighborhoodFilter, setNeighborhoodFilter] = useState("All");
   const [highlightedListingId, setHighlightedListingId] = useState(null);
   const [searchPin, setSearchPin] = useState(null);
-  const darkMode = true; // dark-only
+  const [darkMode, setDarkMode] = useState(true); // defaults to dark
   const [showAddListing, setShowAddListing] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [localListings, setLocalListings] = useState([]);
@@ -520,6 +520,14 @@ export default function InternHub() {
   const [addGroupForm, setAddGroupForm] = useState({ name: "", category: "Social", emoji: "👥", link: "", creator: "", creatorCompany: "" });
   const [savedListingIds, setSavedListingIds] = useState([]);
   const [activeNeighborhood, setActiveNeighborhood] = useState(null);
+
+  // Load listings posted via /list (persisted in the browser) so they show up.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("internnest_local_listings") || "[]");
+      if (Array.isArray(saved) && saved.length) setLocalListings(saved);
+    } catch {}
+  }, []);
 
   useEffect(() => {
     try { setSavedListingIds(JSON.parse(localStorage.getItem("internnest-saved") || "[]")); } catch {}
@@ -689,6 +697,18 @@ export default function InternHub() {
             </span>
           </div>
           <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+              style={{
+                width: 38, height: 38, borderRadius: 100,
+                border: "1px solid var(--border)", background: "var(--surface)",
+                fontSize: 17, cursor: "pointer", display: "flex",
+                alignItems: "center", justifyContent: "center", transition: "all 0.2s ease",
+              }}
+            >
+              {darkMode ? "☀️" : "🌙"}
+            </button>
             <button onClick={() => (window.location.href = "/login")} style={{
               padding: "10px 22px", borderRadius: 100, border: "1px solid var(--border)",
               background: "transparent", color: "var(--text)", fontSize: 14, fontWeight: 500,
