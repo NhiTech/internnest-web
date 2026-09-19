@@ -1282,8 +1282,10 @@ export default function InternHub() {
             </div>
             <span style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 18, color: "var(--text)" }}>InternNest</span>
           </div>
-          <div style={{ fontSize: 13, color: "var(--text-subtle)" }}>
-            © 2026 InternNest · Built for interns, by interns
+          <div style={{ fontSize: 13, color: "var(--text-subtle)", display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
+            <a href="/terms" style={{ color: "var(--text-subtle)", textDecoration: "none" }}>Terms</a>
+            <a href="/privacy" style={{ color: "var(--text-subtle)", textDecoration: "none" }}>Privacy</a>
+            <span>© 2026 InternNest · Built for interns, by interns</span>
           </div>
         </footer>
       </div>
