@@ -1214,25 +1214,46 @@ export default function InternHub() {
               </span>
             </div>
 
-            <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" style={{
-              display: "flex", alignItems: "center", gap: 16, textDecoration: "none",
-              marginBottom: 24, padding: 22, borderRadius: 18,
-              background: "linear-gradient(135deg, rgba(88,101,242,0.18), rgba(88,101,242,0.06))",
-              border: "1px solid rgba(88,101,242,0.4)",
-            }}>
-              <span style={{ fontSize: 34 }}>💬</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 20, color: "var(--text)" }}>
-                  Join the InternNest Discord
+            {me ? (
+              <a href={DISCORD_INVITE} target="_blank" rel="noreferrer" style={{
+                display: "flex", alignItems: "center", gap: 16, textDecoration: "none",
+                marginBottom: 24, padding: 22, borderRadius: 18,
+                background: "linear-gradient(135deg, rgba(88,101,242,0.18), rgba(88,101,242,0.06))",
+                border: "1px solid rgba(88,101,242,0.4)",
+              }}>
+                <span style={{ fontSize: 34 }}>💬</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 20, color: "var(--text)" }}>
+                    Join the InternNest Discord
+                  </div>
+                  <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 2 }}>
+                    {selectedCity.name} channels for housing, roommates, transit &amp; meetups.
+                  </div>
                 </div>
-                <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 2 }}>
-                  Verified interns only — {selectedCity.name} channels for housing, roommates, transit &amp; meetups.
+                <span style={{ padding: "10px 22px", borderRadius: 100, background: "#5865F2", color: "#fff", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>
+                  Join →
+                </span>
+              </a>
+            ) : (
+              <a href="/signup" style={{
+                display: "flex", alignItems: "center", gap: 16, textDecoration: "none",
+                marginBottom: 24, padding: 22, borderRadius: 18,
+                background: "var(--surface)", border: "1px solid var(--border)",
+              }}>
+                <span style={{ fontSize: 34 }}>🔒</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: "'Instrument Serif', Georgia, serif", fontSize: 20, color: "var(--text)" }}>
+                    Discord — verified interns only
+                  </div>
+                  <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 2 }}>
+                    Sign up with your .edu to unlock the invite and join your city&apos;s channels.
+                  </div>
                 </div>
-              </div>
-              <span style={{ padding: "10px 22px", borderRadius: 100, background: "#5865F2", color: "#fff", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>
-                Join →
-              </span>
-            </a>
+                <span style={{ padding: "10px 22px", borderRadius: 100, background: selectedCity.color, color: "#fff", fontSize: 14, fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>
+                  Verify →
+                </span>
+              </a>
+            )}
 
             <a href="/connect" style={{
               display: "flex", alignItems: "center", gap: 16, textDecoration: "none",
