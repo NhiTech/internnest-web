@@ -101,9 +101,13 @@ export default function ProfilePage() {
               <Row label="Budget" value={p.budget ? `$${p.budget}/mo` : undefined} />
             </div>
 
-            <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
+            <a href="/connect" style={{ display: "block", textAlign: "center", marginTop: 24, padding: "13px", borderRadius: 100, background: ACCENT, color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 700, boxShadow: `0 4px 24px ${ACCENT}40` }}>
+              🤝 Find interns at {p.company || "your company"} →
+            </a>
+
+            <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
               <a href="/signup" style={{ flex: 1, textAlign: "center", padding: "12px", borderRadius: 100, border: "1px solid rgba(255,255,255,0.15)", color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Edit profile</a>
-              <a href="/" style={{ flex: 1, textAlign: "center", padding: "12px", borderRadius: 100, background: ACCENT, color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Browse housing</a>
+              <a href="/" style={{ flex: 1, textAlign: "center", padding: "12px", borderRadius: 100, border: "1px solid rgba(255,255,255,0.15)", color: "#fff", textDecoration: "none", fontSize: 14, fontWeight: 600 }}>Browse housing</a>
             </div>
 
             <p style={{ marginTop: 18, fontSize: 12, color: "rgba(255,255,255,0.35)", textAlign: "center" }}>
